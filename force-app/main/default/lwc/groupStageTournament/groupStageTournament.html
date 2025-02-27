@@ -1,0 +1,51 @@
+<template>
+    <div class="container">
+        <h1>FIFA World Cup Knockout Stage</h1>
+
+        <div class="bracket">
+            <!-- Quarter Finals -->
+            <div class="round">
+                <div class="match connect-down">
+                    <span class="team"><img src={flags.NED}> NED</span>
+                    <span class="score">3 - 1</span> 
+                    <span class="team"><img src={flags.USA}> USA</span>
+                    <div class="connector"></div>
+                </div>
+                <div class="match connect-up-down">
+                    <span class="team"><img src={flags.ARG}> ARG</span>
+                    <span class="score">2 - 1</span>
+                    <span class="team"><img src={flags.AUS}> AUS</span>
+                    <div class="connector"></div>
+                </div>
+            </div>
+
+            <!-- Semi Finals -->
+            <div class="round">
+                <div class="match connect-down">
+                    <span class="team"><img src={flags.NED}> NED</span>
+                    <span class="score">2 - 2</span>
+                    <span class="team"><img src={flags.ARG}> ARG</span>
+                    <small>Argentina wins 4 - 3 on penalties</small>
+                    <div class="connector"></div>
+                </div>
+            </div>
+
+            <!-- Finals -->
+            <div class="round">
+                <div class="match">
+                    <span class="team"><img src={flags.ARG}> ARG</span>
+                    <span class="score">3 - 0</span>
+                    <span class="team"><img src={flags.CRO}> CRO</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SVG for better connection lines -->
+        <svg class="lines">
+            <line x1="220" y1="70" x2="250" y2="100" />
+            <line x1="220" y1="150" x2="250" y2="100" />
+            <line x1="250" y1="100" x2="300" y2="100" />
+            <line x1="300" y1="100" x2="350" y2="150" />
+        </svg>
+    </div>
+</template>

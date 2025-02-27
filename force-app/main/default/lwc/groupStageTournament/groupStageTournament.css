@@ -1,0 +1,75 @@
+.container {
+    text-align: center;
+    padding: 20px;
+    background: url('https://www.fifa.com/tournaments/mens/worldcup/2022') no-repeat;
+    background-size: cover;
+}
+
+.bracket {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+    position: relative;
+}
+
+.round {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    position: relative;
+}
+
+.match {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.2);
+    font-weight: bold;
+    width: 220px;
+    position: relative;
+    text-align: center;
+}
+
+.match .team {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.match .team img {
+    width: 20px;
+    height: 15px;
+}
+
+.match .score {
+    font-size: 18px;
+    font-weight: bold;
+    color: #000;
+}
+
+/* Connector Lines */
+.connector {
+    position: absolute;
+    width: 30px;
+    height: 2px;
+    background: black;
+    left: 100%;
+    top: 50%;
+}
+
+.lines {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.lines line {
+    stroke: black;
+    stroke-width: 2;
+}

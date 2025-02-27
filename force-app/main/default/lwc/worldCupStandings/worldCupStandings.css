@@ -1,0 +1,22 @@
+.groups-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.group-container {
+    background-color: #f4f4f4;
+    border-radius: 8px;
+    padding: 10px;
+    /* Remove margin-bottom since grid gap is handling spacing */
+}
+
+.group-title {
+    font-size: 18px;
+    font-weight: bold;
+    padding-bottom: 5px;
+}
+
+.slds-table th, .slds-table td {
+    text-align: center;
+}

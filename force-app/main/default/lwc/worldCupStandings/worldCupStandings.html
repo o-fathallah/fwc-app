@@ -1,0 +1,54 @@
+<template>
+    <lightning-card title="World Cup Group Standings">
+        <template if:true={groupedStandings}>
+            <div class="groups-container">
+                <template for:each={groupedStandings} for:item="group">
+                    <div key={group.name} class="group-container">
+                        <h2 class="group-title">{group.name}</h2>
+                        <table class="slds-table slds-table_bordered">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Team</th>
+                                    <th>P</th>
+                                    <th>W</th>
+                                    <th>D</th>
+                                    <th>L</th>
+                                    <th>GF</th>
+                                    <th>GA</th>
+                                    <th>GD</th>
+                                    <th>Pts</th>
+                                    <th>Qualified</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={group.teams} for:item="team">
+                                    <tr key={team.Id}>
+                                        <td>{team.rank}</td>
+                                        <td>{team.Team__r.Name}</td>
+                                        <td>{team.Matches_played__c}</td>
+                                        <td>{team.Wins__c}</td>
+                                        <td>{team.Draws__c}</td>
+                                        <td>{team.Losses__c}</td>
+                                        <td>{team.Goals_For__c}</td>
+                                        <td>{team.Goals_Against__c}</td>
+                                        <td>{team.Goal_Difference__c}</td>
+                                        <td>{team.Points__c}</td>
+                                        <td>
+                                            <lightning-icon 
+                                                icon-name="utility:check" 
+                                                alternative-text="Qualified" 
+                                                if:true={team.Qualified_Knockout__c}
+                                                size="x-small">
+                                            </lightning-icon>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </template>
+            </div>
+        </template>
+    </lightning-card>
+</template>
