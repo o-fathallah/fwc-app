@@ -1,0 +1,45 @@
+<template>
+    <lightning-card title="Knockout Matches">
+        <template if:true={rounds}>
+            <template for:each={rounds} for:item="roundObj">
+                <div key={roundObj.round} class="round-container">
+                    <h2 class="round-title">{roundObj.round}</h2>
+                    <table class="slds-table slds-table_bordered">
+                        <thead>
+                            <tr>
+                                <th>Match</th>
+                                <th>Date & Time</th>
+                                <th>Home Team</th>
+                                <th>Score</th>
+                                <th>Away Team</th>
+                                <th>Penalty Shootout</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={roundObj.matches} for:item="match">
+                                <tr key={match.Id}>
+                                    <td>{match.Name}</td>
+                                    <td>{match.Match_Datetime__c}</td>
+                                    <td>{match.Home_Team__r.Name}</td>
+                                    <td>{match.Score_Home_Team__c} - {match.Score_Away_Team__c}</td>
+                                    <td>{match.Away_Team__r.Name}</td>
+                                    <td>
+                                        <template if:true={match.Penalty_Shootout__c}>
+                                            {match.Home_Penalty_Score__c} - {match.Away_Penalty_Score__c}
+                                        </template>
+                                        <template if:false={match.Penalty_Shootout__c}>
+                                            N/A
+                                        </template>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+        </template>
+        <template if:false={rounds}>
+            <p>Loading Knockout Matches...</p>
+        </template>
+    </lightning-card>
+</template>

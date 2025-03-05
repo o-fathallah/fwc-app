@@ -1,0 +1,16 @@
+.round-container {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+.round-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.slds-table th, .slds-table td {
+    text-align: center;
+}
