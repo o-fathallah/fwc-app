@@ -1,31 +1,50 @@
 .bracket-container {
+  /* We rely on style={containerStyle} for size & margin */
   position: relative;
-  width: 1000px;  /* match your bracket size */
-  height: 800px;
-  margin: 0 auto;
   background-color: #f8f8f8;
   border: 1px solid #ccc;
-  overflow: auto;
+  /* overflow: auto; can be here or inline style; either works */
+}
+
+.round-heading {
+  position: absolute;
+  width: 140px;
+  text-align: center;
+  font-weight: bold;
+  background-color: #eee;
+  padding: 5px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  z-index: 3;
 }
 
 .bracket-svg {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 1; /* behind the match boxes */
+  z-index: 1;
 }
 
 .match-box {
   position: absolute;
   width: 140px;
-  height: 60px; /* used in JS for center calculations */
+  min-height: 80px;
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 4px;
   text-align: center;
   padding: 5px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  z-index: 2; /* on top of the lines */
+  z-index: 2;
+  transition: background-color 0.3s;
+}
+
+/* Winner highlighting */
+.winner-home {
+  background-color: #e0ffe0; /* Light green */
+}
+.winner-away {
+  background-color: #e0f7ff; /* Light blue */
 }
 
 .teams {
@@ -46,10 +65,17 @@
 .versus {
   font-size: 12px;
   color: #666;
+  margin: 2px 0;
 }
 
-.round-label {
-  margin-top: 3px;
+.penalty {
   font-size: 11px;
-  color: #999;
+  color: #d9534f;
+  margin-top: 2px;
+}
+
+.datetime {
+  font-size: 10px;
+  color: #777;
+  margin-top: 2px;
 }
