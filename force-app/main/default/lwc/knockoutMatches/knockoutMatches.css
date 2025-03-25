@@ -1,23 +1,31 @@
 .bracket-container {
   position: relative;
-  width: 1000px;
+  width: 1000px;  /* match your bracket size */
   height: 800px;
-  margin: 0 auto; /* center horizontally */
+  margin: 0 auto;
   background-color: #f8f8f8;
   border: 1px solid #ccc;
   overflow: auto;
 }
 
+.bracket-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1; /* behind the match boxes */
+}
+
 .match-box {
-  position: absolute; /* crucial for (x,y) layout */
+  position: absolute;
   width: 140px;
-  min-height: 60px;
+  height: 60px; /* used in JS for center calculations */
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 4px;
   text-align: center;
   padding: 5px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 2; /* on top of the lines */
 }
 
 .teams {

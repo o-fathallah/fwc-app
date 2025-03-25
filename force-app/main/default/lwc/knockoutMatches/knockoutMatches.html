@@ -1,6 +1,23 @@
 <template>
     <lightning-card title="Knockout Tournament Bracket">
         <div class="bracket-container">
+            
+            <!-- SVG for bracket lines -->
+            <svg class="bracket-svg" width="1000" height="800">
+                <template for:each={bracketLines} for:item="ln">
+                    <line 
+                        key={ln.lineKey}
+                        x1={ln.x1} 
+                        y1={ln.y1} 
+                        x2={ln.x2} 
+                        y2={ln.y2}
+                        stroke="#888" 
+                        stroke-width="2"
+                    ></line>
+                </template>
+            </svg>
+            
+            <!-- Absolute-positioned match boxes -->
             <template if:true={bracketData}>
                 <template for:each={bracketData} for:item="m">
                     <div key={m.Id} class="match-box" style={m.inlineStyle}>
@@ -16,9 +33,6 @@
                         <div class="round-label">{m.Round__c}</div>
                     </div>
                 </template>
-            </template>
-            <template if:false={bracketData}>
-                <p>Loading knockout matches...</p>
             </template>
         </div>
     </lightning-card>
