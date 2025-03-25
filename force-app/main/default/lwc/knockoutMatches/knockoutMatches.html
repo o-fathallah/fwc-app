@@ -1,35 +1,25 @@
 <template>
     <lightning-card title="Knockout Tournament Bracket">
-        <template if:true={rounds}>
-            <div class="bracket">
-                <template for:each={rounds} for:item="roundObj">
-                    <div key={roundObj.round} class="round">
-                        <h2 class="round-title">{roundObj.round}</h2>
-                        <template for:each={roundObj.matches} for:item="match">
-                            <div key={match.Id} class="match">
-                                <div class="teams">
-                                    <span class="team">{match.Home_Team__r.Name}</span>
-                                    <span class="score">{match.Score_Home_Team__c}</span>
-                                </div>
-                                <div class="versus">vs</div>
-                                <div class="teams">
-                                    <span class="team">{match.Away_Team__r.Name}</span>
-                                    <span class="score">{match.Score_Away_Team__c}</span>
-                                </div>
-                                <template if:true={match.Penalty_Shootout__c}>
-                                    <div class="penalty">
-                                        Penalty: {match.Home_Penalty_Score__c} - {match.Away_Penalty_Score__c}
-                                    </div>
-                                </template>
-                                <div class="match-datetime">{match.Match_Datetime__c}</div>
-                            </div>
-                        </template>
+        <div class="bracket-container">
+            <template if:true={bracketData}>
+                <template for:each={bracketData} for:item="m">
+                    <div key={m.Id} class="match-box" style={m.inlineStyle}>
+                        <div class="teams">
+                            <span class="team">{m.HomeTeam}</span>
+                            <span class="score">{m.HomeScore}</span>
+                        </div>
+                        <div class="versus">vs</div>
+                        <div class="teams">
+                            <span class="team">{m.AwayTeam}</span>
+                            <span class="score">{m.AwayScore}</span>
+                        </div>
+                        <div class="round-label">{m.Round__c}</div>
                     </div>
                 </template>
-            </div>
-        </template>
-        <template if:false={rounds}>
-            <p>Loading knockout matches...</p>
-        </template>
+            </template>
+            <template if:false={bracketData}>
+                <p>Loading knockout matches...</p>
+            </template>
+        </div>
     </lightning-card>
 </template>
