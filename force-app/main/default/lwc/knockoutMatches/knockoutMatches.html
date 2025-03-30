@@ -1,49 +1,40 @@
 <template>
-    <lightning-card title="Knockout Tournament Bracket">
+    <lightning-card title="Knockout Tournament Bracket (Winner-Based Ordering)">
         <div class="bracket-container" style={containerStyle}>
-            <!-- Round headings at top -->
+            <!-- Round headings -->
             <template for:each={roundHeadings} for:item="rh">
                 <div key={rh.roundName} class="round-heading" style={rh.style}>
                     {rh.roundName}
                 </div>
             </template>
-
-            <!-- SVG for bracket lines -->
+            
+            <!-- SVG lines -->
             <svg class="bracket-svg" width={containerWidth} height={containerHeight}>
                 <template for:each={bracketPaths} for:item="p">
-                    <path 
-                        key={p.lineKey}
-                        d={p.d}
-                        stroke="#888"
-                        stroke-width="2"
-                        fill="none"
-                    ></path>
+                    <path key={p.lineKey} d={p.d} stroke="#888" stroke-width="2" fill="none"></path>
                 </template>
             </svg>
             
-            <!-- Absolute-positioned match boxes -->
-            <template if:true={bracketData}>
-                <template for:each={bracketData} for:item="m">
-                    <div key={m.Id} class={m.boxClass} style={m.inlineStyle}>
-                        <div class="teams">
-                            <span class="team">{m.HomeTeam}</span>
-                            <span class="score">{m.HomeScore}</span>
-                        </div>
-                        <div class="versus">vs</div>
-                        <div class="teams">
-                            <span class="team">{m.AwayTeam}</span>
-                            <span class="score">{m.AwayScore}</span>
-                        </div>
-                        <template if:true={m.Penalty}>
-                            <div class="penalty">
-                                Penalty: {m.HomePenalty} - {m.AwayPenalty}
-                            </div>
-                        </template>
-                        <div class="datetime">
-                            {m.MatchDatetime}
-                        </div>
+            <!-- Match boxes -->
+            <template for:each={bracketData} for:item="m">
+                <div key={m.Id} class={m.boxClass} style={m.inlineStyle}>
+                    <div class="teams">
+                        <span class="team">{m.HomeTeam}</span>
+                        <span class="score">{m.HomeScore}</span>
                     </div>
-                </template>
+                    <div class="versus">vs</div>
+                    <div class="teams">
+                        <span class="team">{m.AwayTeam}</span>
+                        <span class="score">{m.AwayScore}</span>
+                    </div>
+                    <template if:true={m.Penalty}>
+                        <div class="penalty">
+                            Penalty: {m.HomePenalty} - {m.AwayPenalty}
+                        </div>
+                    </template>
+                    <div class="datetime">{m.MatchDatetime}</div>
+                    <div class="winner">Winner: {m.Winner}</div>
+                </div>
             </template>
         </div>
     </lightning-card>

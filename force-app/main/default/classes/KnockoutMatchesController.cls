@@ -12,10 +12,11 @@ public with sharing class KnockoutMatchesController {
                    Penalty_Shootout__c,
                    Home_Penalty_Score__c,
                    Away_Penalty_Score__c,
+                   Winner__c,
                    Match_Datetime__c
             FROM Match__c
             WHERE Round__c IN ('Round of 16','Quarter Finals','Semi Finals','Finals')
-            ORDER BY Round__c
+            ORDER BY Round__c, Match_Datetime__c
         ];
     }
 }

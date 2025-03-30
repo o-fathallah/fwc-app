@@ -1,9 +1,8 @@
 .bracket-container {
-  /* We rely on style={containerStyle} for size & margin */
   position: relative;
   background-color: #f8f8f8;
   border: 1px solid #ccc;
-  /* overflow: auto; can be here or inline style; either works */
+  overflow: auto;
 }
 
 .round-heading {
@@ -36,15 +35,13 @@
   padding: 5px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   z-index: 2;
-  transition: background-color 0.3s;
 }
 
-/* Winner highlighting */
 .winner-home {
-  background-color: #e0ffe0; /* Light green */
+  background-color: #e0ffe0;
 }
 .winner-away {
-  background-color: #e0f7ff; /* Light blue */
+  background-color: #e0f7ff;
 }
 
 .teams {
@@ -77,5 +74,11 @@
 .datetime {
   font-size: 10px;
   color: #777;
+  margin-top: 2px;
+}
+
+.winner {
+  font-size: 10px;
+  color: #0070d2;
   margin-top: 2px;
 }
