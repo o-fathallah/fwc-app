@@ -2,64 +2,60 @@ import { LightningElement, wire } from 'lwc';
 import getKnockoutMatches from '@salesforce/apex/KnockoutMatchesController.getKnockoutMatches';
 
 export default class KnockoutMatches extends LightningElement {
-    bracketData = [];   // final array of matches in bracket order (R16->QF->SF->Final)
-    bracketPaths = [];  // array of SVG lines
-    roundHeadings = []; // optional headings
+    bracketData = [];
+    bracketPaths = [];
+    roundHeadings = [];
     error;
 
-    // container size
+    // We'll set containerWidth/Height AFTER bounding box calculation, so we start at 0
     containerWidth = 0;
     containerHeight = 0;
 
-    // match box size
-    matchBoxWidth = 140;
-    matchBoxHeight = 80;
+    // Match box dimensions
+    matchBoxWidth = 160;
+    matchBoxHeight = 100;
 
-    // columns for the 4 rounds
-    xR16   = 50;
-    xQF    = 250;
-    xSF    = 450;
-    xFinal = 650;
+    // Horizontal positions for each round
+    xR16   = 100;   // Round of 16 column
+    xQF    = 400;   // Quarter Finals column
+    xSF    = 700;   // Semi Finals column
+    xFinal = 1000;  // Finals column
 
     @wire(getKnockoutMatches)
     wiredMatches({ data, error }) {
         if (data) {
-            // 1) convert raw records into simpler objects
-            let raw = data.map(m => {
-                return {
-                    Id: m.Id,
-                    Round__c: m.Round__c,
-                    HomeTeam: m.Home_Team__r?.Name || '',
-                    AwayTeam: m.Away_Team__r?.Name || '',
-                    HomeScore: m.Score_Home_Team__c,
-                    AwayScore: m.Score_Away_Team__c,
-                    Penalty: m.Penalty_Shootout__c,
-                    HomePenalty: m.Home_Penalty_Score__c,
-                    AwayPenalty: m.Away_Penalty_Score__c,
-                    Winner: m.Winner__c || '',  // formula field for winner
-                    MatchDatetime: m.Match_Datetime__c,
-                    x: 0, y: 0,
-                    boxClass: '', inlineStyle: ''
-                };
-            });
+            // 1) Convert raw data, format date
+            let raw = data.map(m => ({
+                Id: m.Id,
+                Round__c: m.Round__c,
+                HomeTeam: m.Home_Team__r?.Name || '',
+                AwayTeam: m.Away_Team__r?.Name || '',
+                HomeScore: m.Score_Home_Team__c,
+                AwayScore: m.Score_Away_Team__c,
+                Penalty: m.Penalty_Shootout__c,
+                HomePenalty: m.Home_Penalty_Score__c,
+                AwayPenalty: m.Away_Penalty_Score__c,
+                Winner: m.Winner__c || '',
+                MatchDatetime: this.formatDate(m.Match_Datetime__c),
+                x: 0, y: 0,
+                boxClass: '',
+                inlineStyle: ''
+            }));
 
-            // 2) group by round
+            // 2) Group by round, sort by datetime
             let r16 = raw.filter(r => r.Round__c === 'Round of 16');
             let qf  = raw.filter(r => r.Round__c === 'Quarter Finals');
             let sf  = raw.filter(r => r.Round__c === 'Semi Finals');
             let finals = raw.filter(r => r.Round__c === 'Finals');
 
-            // 3) sort each round by datetime (or by your custom logic)
-            r16.sort((a, b) => a.MatchDatetime.localeCompare(b.MatchDatetime));
-            qf.sort((a, b) => a.MatchDatetime.localeCompare(b.MatchDatetime));
-            sf.sort((a, b) => a.MatchDatetime.localeCompare(b.MatchDatetime));
-            finals.sort((a, b) => a.MatchDatetime.localeCompare(b.MatchDatetime));
+            [r16, qf, sf, finals].forEach(arr => {
+                arr.sort((a, b) => a.MatchDatetime.localeCompare(b.MatchDatetime));
+            });
 
-            // 4) reorder Semi Finals based on Final
+            // 3) Reorder SF based on Final
             let finalMatch = finals.length ? finals[0] : null;
             let orderedSF = sf;
             if (finalMatch && sf.length >= 2) {
-                // top SF is the one whose Winner = finalMatch.HomeTeam
                 let topSF = sf.find(s => s.Winner === finalMatch.HomeTeam);
                 let bottomSF = sf.find(s => s.Winner === finalMatch.AwayTeam);
                 if (topSF && bottomSF && topSF !== bottomSF) {
@@ -67,18 +63,14 @@ export default class KnockoutMatches extends LightningElement {
                 }
             }
 
-            // 5) reorder Quarter Finals based on newly ordered SF
+            // 4) Reorder QF based on newly ordered SF
             let orderedQF = [];
             if (orderedSF.length >= 2) {
-                // for top SF
-                let topSemi = orderedSF[0];
-                // find QF whose winners match topSemi’s home/away
-                let qfForTop = qf.filter(q => q.Winner === topSemi.HomeTeam || q.Winner === topSemi.AwayTeam);
-                // for bottom SF
-                let bottomSemi = orderedSF[1];
-                let qfForBottom = qf.filter(q => q.Winner === bottomSemi.HomeTeam || bottomSemi.AwayTeam === q.Winner);
+                let topSF = orderedSF[0];
+                let bottomSF = orderedSF[1];
+                let qfForTop = qf.filter(q => q.Winner === topSF.HomeTeam || q.Winner === topSF.AwayTeam);
+                let qfForBottom = qf.filter(q => q.Winner === bottomSF.HomeTeam || q.Winner === bottomSF.AwayTeam);
                 orderedQF = [...qfForTop, ...qfForBottom];
-                // if not all found, fallback
                 if (orderedQF.length < qf.length) {
                     orderedQF = qf;
                 }
@@ -86,97 +78,111 @@ export default class KnockoutMatches extends LightningElement {
                 orderedQF = qf;
             }
 
-            // 6) reorder Round of 16 based on newly ordered QF
+            // 5) Reorder R16 based on newly ordered QF
             let orderedR16 = [];
             orderedQF.forEach(q => {
-                // find the two R16 matches whose Winner = q.HomeTeam or q.AwayTeam
-                let matchHome = r16.find(r => r.Winner === q.HomeTeam);
-                let matchAway = r16.find(r => r.Winner === q.AwayTeam);
-                if (matchHome) orderedR16.push(matchHome);
-                if (matchAway && matchAway !== matchHome) orderedR16.push(matchAway);
+                let rHome = r16.find(r => r.Winner === q.HomeTeam);
+                let rAway = r16.find(r => r.Winner === q.AwayTeam);
+                if (rHome) orderedR16.push(rHome);
+                if (rAway && rAway !== rHome) orderedR16.push(rAway);
             });
-            // if we didn't find them all, fallback
             if (orderedR16.length < r16.length) {
                 orderedR16 = r16;
             }
 
-            // 7) now we have ordered R16, QF, SF, final
-            // position them in columns
-            let startY_R16 = 50, spacingR16 = 100;
+            // 6) Place Round of 16 top-down with spacing for more space
+            //    so "there is space between matches of round 16."
+            let startY = 100; // below the heading
+            let spacingR16 = 150; // adjust as you like
             orderedR16.forEach((m, i) => {
                 m.x = this.xR16;
-                m.y = startY_R16 + i * spacingR16;
+                m.y = startY + i * spacingR16;
             });
-            let startY_QF = 50, spacingQF = 120;
-            orderedQF.forEach((m, i) => {
-                m.x = this.xQF;
-                m.y = startY_QF + i * spacingQF;
+
+            // 7) For Quarter Finals, each QF is horizontally in center of the two R16 matches that feed it
+            orderedQF.forEach(q => {
+                // find parents whose Winner = q.HomeTeam / q.AwayTeam
+                let pHome = orderedR16.find(r => r.Winner === q.HomeTeam);
+                let pAway = orderedR16.find(r => r.Winner === q.AwayTeam);
+                q.x = this.xQF;
+                if (pHome && pAway) {
+                    // center child between pHome.y and pAway.y
+                    q.y = (pHome.y + pAway.y) / 2;
+                } else {
+                    // fallback
+                    q.y = startY;
+                }
             });
-            let startY_SF = 50, spacingSF = 180;
-            orderedSF.forEach((m, i) => {
-                m.x = this.xSF;
-                m.y = startY_SF + i * spacingSF;
+
+            // 8) For Semi Finals, each SF is horizontally in center of the two QF matches that feed it
+            orderedSF.forEach(sfMatch => {
+                let pHome = orderedQF.find(q => q.Winner === sfMatch.HomeTeam);
+                let pAway = orderedQF.find(q => q.Winner === sfMatch.AwayTeam);
+                sfMatch.x = this.xSF;
+                if (pHome && pAway) {
+                    sfMatch.y = (pHome.y + pAway.y) / 2;
+                } else {
+                    sfMatch.y = startY;
+                }
             });
-            if (finalMatch) {
+
+            // 9) For Final, center it between the two Semi Finals
+            if (finalMatch && orderedSF.length >= 2) {
                 finalMatch.x = this.xFinal;
-                finalMatch.y = 150; // or any logic to place the final
+                let topSF = orderedSF[0];
+                let bottomSF = orderedSF[1];
+                finalMatch.y = (topSF.y + bottomSF.y) / 2;
             }
 
-            // 8) combine them for display
+            // 10) Combine all matches for bracketData
             let allMatches = [...orderedR16, ...orderedQF, ...orderedSF];
             if (finalMatch) allMatches.push(finalMatch);
 
-            // build lines by matching parent winners
+            // 11) Build bracket lines with Z-shape
             let paths = [];
-            const offset = 30;
-            const createPath = (parent, child) => {
+            const createBracketPathZ = (parent, child) => {
                 if (!parent || !child) return null;
                 let px = parent.x + this.matchBoxWidth;
-                let py = parent.y + this.matchBoxHeight/2;
+                let py = parent.y + this.matchBoxHeight / 2;
                 let cx = child.x;
-                let cy = child.y + this.matchBoxHeight/2;
-                return `M ${px},${py} C ${px+offset},${py} ${cx-offset},${cy} ${cx},${cy}`;
+                let cy = child.y + this.matchBoxHeight / 2;
+                let bridgingX = (px + cx) / 2;
+                return `M ${px},${py} L ${bridgingX},${py} L ${bridgingX},${cy} L ${cx},${cy}`;
             };
 
-            // function to link parent round -> child round
-            function linkParents(parents, children) {
+            // link by Winner
+            function linkMatches(parents, children) {
                 children.forEach(child => {
-                    // find two parents whose Winner = child.HomeTeam / child.AwayTeam
-                    let pHome = parents.find(p => child.HomeTeam === p.Winner);
-                    let pAway = parents.find(p => child.AwayTeam === p.Winner);
+                    let pHome = parents.find(p => p.Winner === child.HomeTeam);
+                    let pAway = parents.find(p => p.Winner === child.AwayTeam);
                     if (pHome) {
-                        let d1 = createPath(pHome, child);
+                        let d1 = createBracketPathZ(pHome, child);
                         if (d1) paths.push({ d: d1, lineKey: `${pHome.Id}-${child.Id}-home` });
                     }
                     if (pAway) {
-                        let d2 = createPath(pAway, child);
+                        let d2 = createBracketPathZ(pAway, child);
                         if (d2) paths.push({ d: d2, lineKey: `${pAway.Id}-${child.Id}-away` });
                     }
                 });
             }
-            // link R16->QF
-            linkParents(orderedR16, orderedQF);
-            // link QF->SF
-            linkParents(orderedQF, orderedSF);
-            // link SF->Final
-            if (finalMatch && orderedSF.length >= 2) {
-                linkParents(orderedSF, [finalMatch]);
+            linkMatches(orderedR16, orderedQF);
+            linkMatches(orderedQF, orderedSF);
+            if (finalMatch) {
+                linkMatches(orderedSF, [finalMatch]);
             }
 
-            // Mark a simple CSS class if home team’s winner or away team’s winner
+            // 12) Mark winner-home or winner-away for CSS
             allMatches.forEach(m => {
-                let w = m.Winner;
-                if (w === m.HomeTeam) {
+                if (m.Winner === m.HomeTeam) {
                     m.boxClass = 'match-box winner-home';
-                } else if (w === m.AwayTeam) {
+                } else if (m.Winner === m.AwayTeam) {
                     m.boxClass = 'match-box winner-away';
                 } else {
                     m.boxClass = 'match-box';
                 }
-                m.inlineStyle = `left:${m.x}px; top:${m.y}px;`;
             });
 
-            // compute bounding box
+            // 13) Compute bounding box so we can set containerWidth/Height
             let maxX = 0, maxY = 0;
             allMatches.forEach(m => {
                 let rightEdge = m.x + this.matchBoxWidth;
@@ -184,22 +190,24 @@ export default class KnockoutMatches extends LightningElement {
                 let bottomEdge = m.y + this.matchBoxHeight;
                 if (bottomEdge > maxY) maxY = bottomEdge;
             });
-            maxX += 50;
-            maxY += 50;
-            this.containerWidth = maxX;
-            this.containerHeight = maxY;
+            maxX += 100; // margin
+            maxY += 100;
 
-            // optional round headings
-            const roundX = {
-                'Round of 16': this.xR16,
-                'Quarter Finals': this.xQF,
-                'Semi Finals': this.xSF,
-                'Finals': this.xFinal
-            };
-            let headings = [];
-            Object.keys(roundX).forEach(r => {
-                headings.push({ roundName: r, style: `left:${roundX[r]}px; top:10px;` });
+            this.containerWidth = Math.max(1200, maxX);
+            this.containerHeight = Math.max(800, maxY);
+
+            // 14) Now set inline style for each match (after bounding box)
+            allMatches.forEach(m => {
+                m.inlineStyle = `left:${m.x}px; top:${m.y}px;`;
             });
+
+            // 15) Build round headings
+            // we place them at top=20 so they appear above matches
+            let headings = [];
+            headings.push({ roundName: 'Round of 16',   style: `left:${this.xR16}px; top:20px;` });
+            headings.push({ roundName: 'Quarter Finals',style: `left:${this.xQF}px; top:20px;` });
+            headings.push({ roundName: 'Semi Finals',   style: `left:${this.xSF}px; top:20px;` });
+            headings.push({ roundName: 'Finals',        style: `left:${this.xFinal}px; top:20px;` });
 
             this.bracketData = allMatches;
             this.bracketPaths = paths;
@@ -211,6 +219,17 @@ export default class KnockoutMatches extends LightningElement {
             this.bracketPaths = [];
             this.roundHeadings = [];
         }
+    }
+
+    // Helper to format date to yyyy-mm-dd
+    formatDate(dateStr) {
+        if (!dateStr) return '';
+        let d = new Date(dateStr);
+        if (isNaN(d.getTime())) return dateStr;
+        let year = d.getFullYear();
+        let month = ('0' + (d.getMonth() + 1)).slice(-2);
+        let day = ('0' + d.getDate()).slice(-2);
+        return `${year}-${month}-${day}`;
     }
 
     get containerStyle() {

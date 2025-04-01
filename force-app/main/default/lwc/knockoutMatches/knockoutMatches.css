@@ -1,22 +1,32 @@
+/* Container with a light grid background */
 .bracket-container {
   position: relative;
   background-color: #f8f8f8;
   border: 1px solid #ccc;
   overflow: auto;
+  padding: 20px;
+  min-width: 1800px;
+  min-height: 1200px;
+  /* Grid pattern for a subtle background */
+  background-image: linear-gradient(#e0e0e0 1px, transparent 1px),
+                    linear-gradient(90deg, #e0e0e0 1px, transparent 1px);
+  background-size: 50px 50px;
 }
 
+/* Round heading styling */
 .round-heading {
   position: absolute;
-  width: 140px;
+  width: 160px;
   text-align: center;
   font-weight: bold;
   background-color: #eee;
-  padding: 5px;
+  padding: 8px;
   border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   z-index: 3;
 }
 
+/* SVG layer for connecting lines */
 .bracket-svg {
   position: absolute;
   top: 0;
@@ -24,61 +34,67 @@
   z-index: 1;
 }
 
+/* Default match box style: light background, neutral border */
 .match-box {
   position: absolute;
-  width: 140px;
-  min-height: 80px;
-  background-color: #fff;
-  border: 1px solid #ddd;
+  width: 160px;
+  min-height: 100px;
+  background-color: #fdfdfd;
+  border: 1px solid #e0e0e0;
   border-radius: 4px;
   text-align: center;
-  padding: 5px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   z-index: 2;
+  transition: background-color 0.3s, color 0.3s;
+  color: #333333;
 }
 
-.winner-home {
-  background-color: #e0ffe0;
-}
-.winner-away {
-  background-color: #e0f7ff;
+/* Winning team text styling – these classes will be added to the team name spans */
+.winner-team-home {
+  color: #1589ee;  /* Blue for home winner */
+  font-weight: bold;
 }
 
+.winner-team-away {
+  color: #4bca81;  /* Green for away winner */
+  font-weight: bold;
+}
+
+/* Inner layout for match box content */
 .teams {
   display: flex;
   justify-content: space-between;
-  margin: 2px 0;
+  margin: 8px 0;
 }
 
 .team {
-  font-weight: bold;
-  font-size: 12px;
+  font-weight: normal;
+  font-size: 14px;
+  color: inherit; /* Inherit default or winner-specific color */
 }
 
 .score {
-  font-size: 12px;
+  font-size: 14px;
+  color: #333333;
 }
 
 .versus {
-  font-size: 12px;
-  color: #666;
-  margin: 2px 0;
+  font-size: 13px;
+  color: #666666;
+  margin: 8px 0;
 }
 
 .penalty {
-  font-size: 11px;
+  font-size: 13px;
   color: #d9534f;
-  margin-top: 2px;
+  margin-top: 8px;
 }
 
 .datetime {
-  font-size: 10px;
-  color: #777;
-  margin-top: 2px;
+  font-size: 12px;
+  color: #00529B;  /* Rich blue for date */
+  margin-top: 8px;
 }
 
-.winner {
-  font-size: 10px;
-  color: #0070d2;
-  margin-top: 2px;
-}
+/* (No winner label element – removed from HTML) */

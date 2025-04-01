@@ -1,5 +1,5 @@
 <template>
-    <lightning-card title="Knockout Tournament Bracket (Winner-Based Ordering)">
+    <lightning-card title="Knockout Tournament Bracket (Winner-Based, Centered Parents)">
         <div class="bracket-container" style={containerStyle}>
             <!-- Round headings -->
             <template for:each={roundHeadings} for:item="rh">
@@ -8,10 +8,16 @@
                 </div>
             </template>
             
-            <!-- SVG lines -->
+            <!-- SVG lines (Z-shaped) -->
             <svg class="bracket-svg" width={containerWidth} height={containerHeight}>
                 <template for:each={bracketPaths} for:item="p">
-                    <path key={p.lineKey} d={p.d} stroke="#888" stroke-width="2" fill="none"></path>
+                    <path 
+                        key={p.lineKey}
+                        d={p.d}
+                        stroke="#888"
+                        stroke-width="2"
+                        fill="none"
+                    ></path>
                 </template>
             </svg>
             
