@@ -1,7 +1,7 @@
 <template>
-    <lightning-card title="Knockout Tournament Bracket (Winner-Based, Centered Parents)">
+    <lightning-card title="Knockout Tournament Bracket (Winner-Based, Bold Winner)">
         <div class="bracket-container" style={containerStyle}>
-            <!-- Round headings -->
+            <!-- Round Headings -->
             <template for:each={roundHeadings} for:item="rh">
                 <div key={rh.roundName} class="round-heading" style={rh.style}>
                     {rh.roundName}
@@ -25,12 +25,12 @@
             <template for:each={bracketData} for:item="m">
                 <div key={m.Id} class={m.boxClass} style={m.inlineStyle}>
                     <div class="teams">
-                        <span class="team">{m.HomeTeam}</span>
+                        <span class="team {m.homeTeamClass}">{m.HomeTeam}</span>
                         <span class="score">{m.HomeScore}</span>
                     </div>
                     <div class="versus">vs</div>
                     <div class="teams">
-                        <span class="team">{m.AwayTeam}</span>
+                        <span class="team {m.awayTeamClass}">{m.AwayTeam}</span>
                         <span class="score">{m.AwayScore}</span>
                     </div>
                     <template if:true={m.Penalty}>
@@ -39,7 +39,6 @@
                         </div>
                     </template>
                     <div class="datetime">{m.MatchDatetime}</div>
-                    <div class="winner">Winner: {m.Winner}</div>
                 </div>
             </template>
         </div>

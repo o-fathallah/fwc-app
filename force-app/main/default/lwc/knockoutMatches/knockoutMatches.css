@@ -1,19 +1,13 @@
-/* Container with a light grid background */
 .bracket-container {
   position: relative;
   background-color: #f8f8f8;
   border: 1px solid #ccc;
   overflow: auto;
   padding: 20px;
-  min-width: 1800px;
-  min-height: 1200px;
-  /* Grid pattern for a subtle background */
-  background-image: linear-gradient(#e0e0e0 1px, transparent 1px),
-                    linear-gradient(90deg, #e0e0e0 1px, transparent 1px);
-  background-size: 50px 50px;
+  min-width: 1200px;
+  min-height: 800px;
 }
 
-/* Round heading styling */
 .round-heading {
   position: absolute;
   width: 160px;
@@ -22,11 +16,10 @@
   background-color: #eee;
   padding: 8px;
   border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   z-index: 3;
 }
 
-/* SVG layer for connecting lines */
 .bracket-svg {
   position: absolute;
   top: 0;
@@ -34,7 +27,7 @@
   z-index: 1;
 }
 
-/* Default match box style: light background, neutral border */
+/* Neutral style for all match boxes */
 .match-box {
   position: absolute;
   width: 160px;
@@ -44,24 +37,19 @@
   border-radius: 4px;
   text-align: center;
   padding: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   z-index: 2;
   transition: background-color 0.3s, color 0.3s;
   color: #333333;
 }
 
-/* Winning team text styling – these classes will be added to the team name spans */
-.winner-team-home {
-  color: #1589ee;  /* Blue for home winner */
-  font-weight: bold;
+/* If a team is the winner, we apply .winner-team to that team's name */
+.winner-team {
+  font-weight: bold; /* winner is bold */
+  /* color: #1589ee;  if you want color for the bold text, un-comment or pick your color */
 }
 
-.winner-team-away {
-  color: #4bca81;  /* Green for away winner */
-  font-weight: bold;
-}
-
-/* Inner layout for match box content */
+/* Layout classes inside match box */
 .teams {
   display: flex;
   justify-content: space-between;
@@ -71,7 +59,7 @@
 .team {
   font-weight: normal;
   font-size: 14px;
-  color: inherit; /* Inherit default or winner-specific color */
+  color: inherit;
 }
 
 .score {
@@ -93,8 +81,6 @@
 
 .datetime {
   font-size: 12px;
-  color: #00529B;  /* Rich blue for date */
+  color: #00529B;
   margin-top: 8px;
 }
-
-/* (No winner label element – removed from HTML) */
