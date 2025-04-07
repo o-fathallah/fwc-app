@@ -1,25 +1,22 @@
 .groups-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
 }
 
 .group-container {
-    background-color: #f4f4f4;
-    border-radius: 8px;
-    padding: 10px;
+    width: 45%;
+    margin-bottom: 20px;
 }
 
 .group-title {
-    font-size: 18px;
+    font-size: 1.25rem;
     font-weight: bold;
-    padding-bottom: 5px;
+    text-align: center;
+    margin-bottom: 10px;
 }
 
 .slds-table th, .slds-table td {
     text-align: center;
-}
-
-.hide-header {
-    display: none;
+    vertical-align: middle;
 }

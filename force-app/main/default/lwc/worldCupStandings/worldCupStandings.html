@@ -1,5 +1,15 @@
 <template>
     <lightning-card title="World Cup Group Standings">
+        <div class="slds-p-around_medium">
+            <lightning-combobox
+                name="tournamentDropdown"
+                label="Select Tournament"
+                value={selectedTournamentId}
+                placeholder="Select a Tournament"
+                options={tournamentOptions}
+                onchange={handleTournamentChange}>
+            </lightning-combobox>
+        </div>
         <template if:true={groupedStandings}>
             <div class="groups-container">
                 <template for:each={groupedStandings} for:item="group">
@@ -18,7 +28,6 @@
                                     <th>GA</th>
                                     <th>GD</th>
                                     <th>Pts</th>
-                                    <!-- <th>Qualified</th> -->
                                     <th class="hide-header">Qualified</th>
                                 </tr>
                             </thead>
