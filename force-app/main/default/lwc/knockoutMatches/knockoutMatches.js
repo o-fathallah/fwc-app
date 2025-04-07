@@ -1,31 +1,50 @@
-import { LightningElement, wire } from 'lwc';
-import getKnockoutMatches from '@salesforce/apex/KnockoutMatchesController.getKnockoutMatches';
+import { LightningElement, track, wire } from 'lwc';
+import getKnockoutMatchesByTournament from '@salesforce/apex/KnockoutMatchesController.getKnockoutMatchesByTournament';
+import getTournaments from '@salesforce/apex/TournamentController.getTournaments';
 
 export default class KnockoutMatches extends LightningElement {
+    @track selectedTournamentId = '';
+    @track tournamentOptions = [];
     bracketData = [];
     bracketPaths = [];
     roundHeadings = [];
     error;
 
-    // We'll compute containerWidth/Height after bounding box
-    containerWidth = 0;
-    containerHeight = 0;
-
-    // Match box size
+    // Layout properties
+    containerWidth = 1200;
+    containerHeight = 800;
     matchBoxWidth = 160;
     matchBoxHeight = 100;
 
-    // X positions for each round (adjust as needed)
+    // X positions for rounds
     xR16   = 100;   // Round of 16
     xQF    = 400;   // Quarter Finals
     xSF    = 700;   // Semi Finals
     xFinal = 1000;  // Finals
 
-    // We place Round of 16 from top to bottom with a start offset
-    r16StartY = 160; // ensures matches are below the round label
+    // Placement properties for Round of 16 matches
+    r16StartY = 160;
     r16Spacing = 150;
 
-    @wire(getKnockoutMatches)
+    // Wire the tournaments for the dropdown
+    @wire(getTournaments)
+    wiredTournaments({ data, error }) {
+        if (data) {
+            this.tournamentOptions = data.map(t => ({
+                label: t.Name,
+                value: t.Id
+            }));
+            if (!this.selectedTournamentId && data.length > 0) {
+                this.selectedTournamentId = data[0].Id;
+            }
+        } else if (error) {
+            this.error = error;
+            console.error('Error fetching tournaments', error);
+        }
+    }
+
+    // Wire knockout matches filtered by selected tournament
+    @wire(getKnockoutMatchesByTournament, { tournamentId: '$selectedTournamentId' })
     wiredMatches({ data, error }) {
         if (data) {
             // 1) Convert raw data, format date, set up winner styling placeholders
@@ -41,11 +60,12 @@ export default class KnockoutMatches extends LightningElement {
                 AwayPenalty: m.Away_Penalty_Score__c,
                 Winner: m.Winner__c || '',
                 MatchDatetime: this.formatDate(m.Match_Datetime__c),
-                x: 0, y: 0,
+                x: 0, 
+                y: 0,
                 boxClass: 'match-box',
                 inlineStyle: '',
-                homeTeamClass: '', // will be bold if home is winner
-                awayTeamClass: ''  // will be bold if away is winner
+                homeTeamClass: '', // will be bold if home wins
+                awayTeamClass: ''  // will be bold if away wins
             }));
 
             // 2) Group matches by round, sort by date
@@ -58,7 +78,7 @@ export default class KnockoutMatches extends LightningElement {
                 arr.sort((a, b) => a.MatchDatetime.localeCompare(b.MatchDatetime));
             });
 
-            // 3) Reorder SF based on Final
+            // 3) Reorder Semi Finals based on Final result
             let finalMatch = finals.length ? finals[0] : null;
             let orderedSF = sf;
             if (finalMatch && sf.length >= 2) {
@@ -69,7 +89,7 @@ export default class KnockoutMatches extends LightningElement {
                 }
             }
 
-            // 4) Reorder QF based on newly ordered SF
+            // 4) Reorder Quarter Finals based on newly ordered SF
             let orderedQF = [];
             if (orderedSF.length >= 2) {
                 let topSF = orderedSF[0];
@@ -84,7 +104,7 @@ export default class KnockoutMatches extends LightningElement {
                 orderedQF = qf;
             }
 
-            // 5) Reorder R16 based on newly ordered QF
+            // 5) Reorder Round of 16 based on newly ordered QF
             let orderedR16 = [];
             orderedQF.forEach(q => {
                 let rHome = r16.find(r => r.Winner === q.HomeTeam);
@@ -96,13 +116,13 @@ export default class KnockoutMatches extends LightningElement {
                 orderedR16 = r16;
             }
 
-            // 6) Place Round of 16 from top to bottom with uniform spacing
+            // 6) Place Round of 16 matches uniformly from top to bottom
             orderedR16.forEach((m, i) => {
                 m.x = this.xR16;
                 m.y = this.r16StartY + i * this.r16Spacing;
             });
 
-            // 7) Place QF by centering each QF between its two R16 parents
+            // 7) Place Quarter Finals by centering each QF between its two Round of 16 parent matches
             orderedQF.forEach(q => {
                 let pHome = orderedR16.find(r => r.Winner === q.HomeTeam);
                 let pAway = orderedR16.find(r => r.Winner === q.AwayTeam);
@@ -114,7 +134,7 @@ export default class KnockoutMatches extends LightningElement {
                 }
             });
 
-            // 8) Place SF by centering each SF between its two QF parents
+            // 8) Place Semi Finals by centering each SF between its two QF parent matches
             orderedSF.forEach(s => {
                 let pHome = orderedQF.find(q => q.Winner === s.HomeTeam);
                 let pAway = orderedQF.find(q => q.Winner === s.AwayTeam);
@@ -126,7 +146,7 @@ export default class KnockoutMatches extends LightningElement {
                 }
             });
 
-            // 9) Place Final by centering between the two SF
+            // 9) Place Final by centering between the two Semi Final matches
             if (finalMatch && orderedSF.length >= 2) {
                 finalMatch.x = this.xFinal;
                 finalMatch.y = (orderedSF[0].y + orderedSF[1].y) / 2;
@@ -136,7 +156,7 @@ export default class KnockoutMatches extends LightningElement {
             let allMatches = [...orderedR16, ...orderedQF, ...orderedSF];
             if (finalMatch) allMatches.push(finalMatch);
 
-            // 11) Build bracket lines (Z shape)
+            // 11) Build bracket paths (Z-shaped lines)
             let paths = [];
             const createBracketPathZ = (parent, child) => {
                 if (!parent || !child) return null;
@@ -167,10 +187,10 @@ export default class KnockoutMatches extends LightningElement {
                 linkMatches(orderedSF, [finalMatch]);
             }
 
-            // 12) Mark winner's team name as bold
+            // 12) Bold the winning team’s name in each match
             allMatches.forEach(m => {
                 if (m.Winner === m.HomeTeam) {
-                    m.homeTeamClass = 'winner-team'; // bold style
+                    m.homeTeamClass = 'winner-team';
                     m.awayTeamClass = '';
                 } else if (m.Winner === m.AwayTeam) {
                     m.homeTeamClass = '';
@@ -181,7 +201,7 @@ export default class KnockoutMatches extends LightningElement {
                 }
             });
 
-            // 13) Compute bounding box
+            // 13) Compute container dimensions
             let maxX = 0, maxY = 0;
             allMatches.forEach(m => {
                 let rightEdge = m.x + this.matchBoxWidth;
@@ -194,23 +214,22 @@ export default class KnockoutMatches extends LightningElement {
             this.containerWidth = Math.max(1200, maxX);
             this.containerHeight = Math.max(800, maxY);
 
-            // 14) Now set inline style
+            // 14) Set inline style for each match box
             allMatches.forEach(m => {
                 m.inlineStyle = `left:${m.x}px; top:${m.y}px;`;
             });
 
-            // 15) Round headings
+            // 15) Set round headings
             let headings = [];
             headings.push({ roundName: 'Round of 16',   style: `left:${this.xR16}px; top:20px;` });
             headings.push({ roundName: 'Quarter Finals', style: `left:${this.xQF}px; top:20px;` });
             headings.push({ roundName: 'Semi Finals',    style: `left:${this.xSF}px; top:20px;` });
             headings.push({ roundName: 'Finals',         style: `left:${this.xFinal}px; top:20px;` });
-
+            this.roundHeadings = headings;
             this.bracketData = allMatches;
             this.bracketPaths = paths;
-            this.roundHeadings = headings;
             this.error = undefined;
-        } else if (error) {
+        } else if(error) {
             this.error = error;
             this.bracketData = [];
             this.bracketPaths = [];
@@ -218,7 +237,7 @@ export default class KnockoutMatches extends LightningElement {
         }
     }
 
-    // Helper: format date to "yyyy-mm-dd"
+    // Helper: Format date as "yyyy-mm-dd"
     formatDate(dateStr) {
         if (!dateStr) return '';
         const d = new Date(dateStr);
@@ -237,5 +256,10 @@ export default class KnockoutMatches extends LightningElement {
             margin: 0 auto;
             overflow: auto;
         `;
+    }
+
+    // Handle tournament dropdown change
+    handleTournamentChange(event) {
+        this.selectedTournamentId = event.detail.value;
     }
 }

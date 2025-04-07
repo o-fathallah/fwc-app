@@ -1,5 +1,16 @@
 <template>
-    <lightning-card title="Knockout Tournament Bracket (Winner-Based, Bold Winner)">
+    <lightning-card title="Knockout Tournament Bracket">
+        <div class="slds-p-around_medium">
+            <lightning-combobox
+                name="tournament"
+                label="Select Tournament"
+                value={selectedTournamentId}
+                placeholder="Select Tournament"
+                options={tournamentOptions}
+                onchange={handleTournamentChange}>
+            </lightning-combobox>
+        </div>
+        <!-- Bracket display -->
         <div class="bracket-container" style={containerStyle}>
             <!-- Round Headings -->
             <template for:each={roundHeadings} for:item="rh">
@@ -7,20 +18,12 @@
                     {rh.roundName}
                 </div>
             </template>
-            
-            <!-- SVG lines (Z-shaped) -->
+            <!-- SVG lines -->
             <svg class="bracket-svg" width={containerWidth} height={containerHeight}>
                 <template for:each={bracketPaths} for:item="p">
-                    <path 
-                        key={p.lineKey}
-                        d={p.d}
-                        stroke="#888"
-                        stroke-width="2"
-                        fill="none"
-                    ></path>
+                    <path key={p.lineKey} d={p.d} stroke="#888" stroke-width="2" fill="none"></path>
                 </template>
             </svg>
-            
             <!-- Match boxes -->
             <template for:each={bracketData} for:item="m">
                 <div key={m.Id} class={m.boxClass} style={m.inlineStyle}>
@@ -34,9 +37,7 @@
                         <span class="score">{m.AwayScore}</span>
                     </div>
                     <template if:true={m.Penalty}>
-                        <div class="penalty">
-                            Penalty: {m.HomePenalty} - {m.AwayPenalty}
-                        </div>
+                        <div class="penalty">Penalty: {m.HomePenalty} - {m.AwayPenalty}</div>
                     </template>
                     <div class="datetime">{m.MatchDatetime}</div>
                 </div>

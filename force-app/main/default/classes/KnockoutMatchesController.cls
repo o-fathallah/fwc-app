@@ -1,7 +1,6 @@
 public with sharing class KnockoutMatchesController {
-    
     @AuraEnabled(cacheable=true)
-    public static List<Match__c> getKnockoutMatches() {
+    public static List<Match__c> getKnockoutMatchesByTournament(Id tournamentId) {
         return [
             SELECT Id, 
                    Round__c, 
@@ -15,7 +14,8 @@ public with sharing class KnockoutMatchesController {
                    Winner__c,
                    Match_Datetime__c
             FROM Match__c
-            WHERE Round__c IN ('Round of 16','Quarter Finals','Semi Finals','Finals')
+            WHERE Tournament__c = :tournamentId 
+              AND Round__c IN ('Round of 16','Quarter Finals','Semi Finals','Finals')
             ORDER BY Round__c, Match_Datetime__c
         ];
     }
